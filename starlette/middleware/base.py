@@ -149,7 +149,7 @@ class BaseHTTPMiddleware:
                 async with send_stream:
                     try:
                         await self.app(scope, receive_or_disconnect, send_no_error)
-                    except Exception as exc:
+                    except BaseException as exc:
                         app_exc = exc
 
             task_group.start_soon(close_recv_stream_on_response_sent)

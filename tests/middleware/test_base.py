@@ -42,6 +42,10 @@ def homepage(request: Request) -> PlainTextResponse:
     return PlainTextResponse("Homepage")
 
 
+def shutdown(request: Request) -> None:
+    quit()
+
+
 def exc(request: Request) -> None:
     raise Exception("Exc")
 
@@ -82,6 +86,7 @@ app = Starlette(
         Route("/", endpoint=homepage),
         Route("/exc", endpoint=exc),
         Route("/exc-stream", endpoint=exc_stream),
+        Route("/shutdown", endpoint=shutdown),
         Route("/no-response", endpoint=NoResponse),
         WebSocketRoute("/ws", endpoint=websocket_endpoint),
     ],
@@ -104,6 +109,9 @@ def test_custom_middleware(test_client_factory: TestClientFactory) -> None:
 
     with pytest.raises(RuntimeError):
         response = client.get("/no-response")
+
+    with pytest.raises(SystemExit) as ctx:
+        response = client.get("/shutdown")
 
     with client.websocket_connect("/ws") as session:
         text = session.receive_text()
